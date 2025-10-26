@@ -1,0 +1,69 @@
+[project]
+name = "diffusion-eet"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Beinsezii", email = "beinsezii@gmail.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.5",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "A",      # std types
+    "ANN",    # annotations
+    "BLE",    # blanket except
+    "C4",     # comprehension
+    "E",      # style errors
+    "EM",     # error messages
+    "EXE",    # shebangs
+    "F",      # format
+    "FA",     # future
+    "FLY",    # expr fstring
+    "FURB",   # syn upgrades
+    "G",      # log messages
+    "I",      # imports
+    "ICN",    # import conventions
+    "INP001",
+    "ISC",    # str cat
+    "LOG",    # logging
+    "NPY",    # numpy
+    "PERF",   # perflint
+    "PIE",    # misc
+    "PL",     # pylint
+    "PT",     # pytest
+    "Q",      # quotes
+    "RUF",    # variety
+    "T10",    # pdb.trace
+    "T20",    # print
+    "TC",     # type checking
+    "TD",     # todos
+    "TRY",    # try/catch
+    "UP",     # syn upgrades
+    "W",      # style warnings
+]
+ignore = [
+    "PIE808",  # range start 0
+    "PLR",     # silly
+    "PLC0415", # imports inside functions
+    "TD003",   # todo require link
+    "UP015",   # open() mode='r'
+]
+
+[dependency-groups]
+testing = [
+    "accelerate>=1.11.0",
+    "diffusers>=0.35",
+    "pyright>=1.1.407",
+    "ruff>=0.14.2",
+    "skrample==0.4.*",
+    "transformers>=4.57.1",
+]

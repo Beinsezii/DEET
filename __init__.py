@@ -25,6 +25,8 @@ class DEET(io.ComfyNode):
                 io.Float.Input("deviation", default=1.5, min=-1e32, max=1e32, step=0.1, round=0.01),
                 io.Float.Input("power", default=1, min=-1e32, max=1e32, step=0.1, round=0.01),
                 io.Boolean.Input("invert", default=False),
+                io.Boolean.Input("equalize", default=False),
+                io.Boolean.Input("residual", default=False),
             ],
             outputs=[io.Model.Output()],
         )
@@ -37,11 +39,13 @@ class DEET(io.ComfyNode):
         deviation: float,
         power: float,
         invert: bool,
+        equalize: bool,
+        residual: bool,
     ) -> io.NodeOutput:  # type: ignore
         cloned = model.clone()
         assert model.clone_has_same_weights(cloned)
 
-        deet_struct = deet.DEET(deviation=deviation, power=power, invert=invert)
+        deet_struct = deet.DEET(deviation=deviation, power=power, invert=invert, equalize=equalize)
         x_prev: torch.Tensor | None = None
         o_prev: torch.Tensor | None = None
 
@@ -51,6 +55,8 @@ class DEET(io.ComfyNode):
             if mode == deet.DEETMode.INPUT and x_prev is not None:
                 new_x = deet_struct(x, x_prev)
                 x, x_prev = new_x, x
+                if residual:
+                    x_prev = x
             else:
                 x_prev = x
 
@@ -59,6 +65,8 @@ class DEET(io.ComfyNode):
             if mode == deet.DEETMode.OUTPUT and o_prev is not None:
                 new_output = deet_struct(output, o_prev)
                 output, o_prev = new_output, output
+                if residual:
+                    o_prev = output
             elif mode == deet.DEETMode.BACKWARD:
                 output = deet_struct(output, x)
             else:

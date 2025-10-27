@@ -6,5 +6,9 @@ dist/
 wheels/
 *.egg-info
 
+# ComfyUI Node
+comfy
+comfy_api
+
 # Virtual environments
 .venv

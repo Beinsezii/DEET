@@ -24,6 +24,7 @@ def deet(
     deviation: float = 1,
     power: float = 1,
     invert: bool = False,
+    equalize: bool = False,
 ) -> torch.Tensor:
     if deviation > 0:
         # noise values < deviation will get masked
@@ -35,7 +36,13 @@ def deet(
         return low_noise
 
     mask = spowf(mask, power).clamp(0, 1)
-    return low_noise * (1 - mask) + high_noise * mask * (invert * -1 | 1)
+
+    deeted = low_noise * (1 - mask) + high_noise * mask * (invert * -1 | 1)
+
+    if equalize:
+        deeted = deeted * (low_noise.std() / deeted.std())
+
+    return deeted
 
 
 @enum.unique
@@ -53,11 +60,19 @@ class DEET:
     deviation: float = 1
     power: float = 1
     invert: bool = False
+    equalize: bool = False
     compute_scale: torch.dtype | None = torch.float64
 
     def __call__(self, low_noise: torch.Tensor, high_noise: torch.Tensor) -> torch.Tensor:
         if self.compute_scale is None:
-            return deet(low_noise, high_noise, self.deviation, self.power, self.invert)
+            return deet(
+                low_noise,
+                high_noise,
+                self.deviation,
+                self.power,
+                self.invert,
+                self.equalize,
+            )
         else:
             return deet(
                 low_noise.to(dtype=self.compute_scale),
@@ -65,6 +80,7 @@ class DEET:
                 self.deviation,
                 self.power,
                 self.invert,
+                self.equalize,
             ).to(dtype=low_noise.dtype)
 
     @contextlib.contextmanager
